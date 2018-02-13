@@ -3,9 +3,7 @@ import * as BooksAPI from './BooksAPI'
 import { Route, Link } from 'react-router-dom'
 import './App.css'
 import SearchResults from './search-results'
-import CurrentlyRead from './currently-read'
-import WantRead from './want-read'
-import HasRead from './has-read'
+import BookShelfType from '/book-shelf-type'
 
 class BooksApp extends Component {
 
@@ -88,11 +86,6 @@ class BooksApp extends Component {
       });
   }
 
-  getIndexId = (book, bookId) => {
-
-    return book.id === bookId;
-  }
-
   updateBookStatusRequestFromShelf = (event, book) => {
 
     const shelfName = event.target.value;
@@ -134,7 +127,6 @@ class BooksApp extends Component {
         booksUnderSearchResults: booksUnderSearchResultsModified
       });
 
-
       resolve();
     });
 
@@ -168,7 +160,7 @@ class BooksApp extends Component {
 
             <div className="list-books-content">
               <div>
-                <CurrentlyRead booksUnderShelvesArr={this.state.booksUnderShelves}
+                <BookShelfType booksUnderShelvesArr={this.state.booksUnderShelves}
                   shelfNameRef={this.currentlyReadingBooksShelfNameRef}
                   shelfNameTitle={this.currentlyReadingBooksShelfTitle}
                   wantsToReadShelfNameRefString={this.wantsToReadShelfNameRef}
@@ -177,7 +169,7 @@ class BooksApp extends Component {
                   noneRefString={this.noneRef}
                   updateBookStatusRequestFromShelfFunc={this.updateBookStatusRequestFromShelf}
                 />
-                <CurrentlyRead booksUnderShelvesArr={this.state.booksUnderShelves}
+                <BookShelfType booksUnderShelvesArr={this.state.booksUnderShelves}
                   shelfNameRef={this.wantsToReadShelfNameRef}
                   shelfNameTitle={this.wantsToReadShelfTitle}
                   wantsToReadShelfNameRefString={this.wantsToReadShelfNameRef}
@@ -186,7 +178,7 @@ class BooksApp extends Component {
                   noneRefString={this.noneRef}
                   updateBookStatusRequestFromShelfFunc={this.updateBookStatusRequestFromShelf}
                 />
-                <CurrentlyRead booksUnderShelvesArr={this.state.booksUnderShelves}
+                <BookShelfType booksUnderShelvesArr={this.state.booksUnderShelves}
                   shelfNameRef={this.hasReadBooksShelfRef}
                   shelfNameTitle={this.hasReadBooksShelfTitle}
                   wantsToReadShelfNameRefString={this.wantsToReadShelfNameRef}
@@ -195,22 +187,6 @@ class BooksApp extends Component {
                   noneRefString={this.noneRef}
                   updateBookStatusRequestFromShelfFunc={this.updateBookStatusRequestFromShelf}
                 />
-
-                {/* <WantRead booksUnderShelvesArr={this.state.booksUnderShelves}
-                  wantsToReadShelfNameRefString={this.wantsToReadShelfNameRef}
-                  currentlyReadingBooksShelfNameRefString={this.currentlyReadingBooksShelfNameRef}
-                  hasReadBooksShelfRefString={this.hasReadBooksShelfRef}
-                  noneRefString={this.noneRef}
-                  updateBookStatusRequestFromShelfFunc={this.updateBookStatusRequestFromShelf}
-                />
-
-                <HasRead booksUnderShelvesArr={this.state.booksUnderShelves}
-                  wantsToReadShelfNameRefString={this.wantsToReadShelfNameRef}
-                  currentlyReadingBooksShelfNameRefString={this.currentlyReadingBooksShelfNameRef}
-                  hasReadBooksShelfRefString={this.hasReadBooksShelfRef}
-                  noneRefString={this.noneRef}
-                  updateBookStatusRequestFromShelfFunc={this.updateBookStatusRequestFromShelf}
-                /> */}
               </div>
             </div>
             <div className="open-search">

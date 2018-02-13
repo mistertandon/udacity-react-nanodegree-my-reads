@@ -1,6 +1,6 @@
 import React from 'react';
 
-const CurrentlyRead = (props) => (
+const BookShelfType = (props) => (
 
   <div className="bookshelf">
     <h2 className="bookshelf-title">{props.shelfNameTitle}</h2>
@@ -56,4 +56,4 @@ const CurrentlyRead = (props) => (
   </div>
 )
 
-export default CurrentlyRead;
+export default BookShelfType;
