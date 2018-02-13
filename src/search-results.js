@@ -17,9 +17,14 @@ class SearchResults extends Component {
 
   }
 
+  updateBookStatusRequestFromShelf = (event) => {
+
+    this.props.updateBookStatusRequestFromShelfFunc(event.target.name, event.target.value);
+  }
+
   render() {
 
-    const { booksUnderSearchResultsArr, wantsToReadShelfNameRefString, currentlyReadingBooksShelfNameRefString, hasReadBooksShelfRefString } = this.props;
+    const { booksUnderSearchResultsArr, wantsToReadShelfNameRefString, currentlyReadingBooksShelfNameRefString, hasReadBooksShelfRefString, noneRefString } = this.props;
 
     return (
 
@@ -57,14 +62,25 @@ class SearchResults extends Component {
                     <li key={book.id}>
                       <div className="book">
                         <div className="book-top">
-                          <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
+                          {
+                            typeof book.imageLinks.thumbnail !== "undefined" &&
+                            (
+                              <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
+                            )
+                          }
+                          {
+                            typeof book.imageLinks.thumbnail === "undefined" &&
+                            (
+                              <div className="book-cover" style={{ width: 128, height: 193 }}></div>
+                            )
+                          }
                           <div className="book-shelf-changer">
-                            <select>
-                              <option value="none" disabled>Move to...</option>
+                            <select defaultValue={book.shelf} name={book.id} onChange={this.updateBookStatusRequestFromShelf}>
+                              <option value={noneRefString} disabled>Move to...</option>
                               <option value={currentlyReadingBooksShelfNameRefString}>Currently Reading</option>
                               <option value={wantsToReadShelfNameRefString}>Want to Read</option>
                               <option value={hasReadBooksShelfRefString}>Read</option>
-                              <option value="none">None</option>
+                              <option value={noneRefString}>None</option>
                             </select>
                           </div>
                         </div>

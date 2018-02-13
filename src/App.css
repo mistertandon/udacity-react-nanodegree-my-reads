@@ -172,3 +172,9 @@ body, .app {
   text-align: center;
   font-size: 0.8em;
 }
+
+option:checked {
+  box-shadow: 0 0 0 3px lime;
+  color: rgba(255, 0, 0, 0.514);
+  font-weight:bold;
+}

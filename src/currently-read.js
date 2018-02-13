@@ -3,27 +3,43 @@ import React from 'react';
 const CurrentlyRead = (props) => (
 
   <div className="bookshelf">
-    <h2 className="bookshelf-title">Currently Reading</h2>
+    <h2 className="bookshelf-title">{props.shelfNameTitle}</h2>
     <div className="bookshelf-books">
       <ol className="books-grid">
 
         {
           props.booksUnderShelvesArr.length &&
           props.booksUnderShelvesArr
-            .filter(book => book.shelf === props.currentlyReadingBooksShelfNameRefString)
+            .filter(book => book.shelf === props.shelfNameRef)
             .map(book => (
 
               <li key={book.id}>
                 <div className="book">
                   <div className="book-top">
-                    <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
+                    {
+                      typeof book.imageLinks.thumbnail !== "undefined" &&
+                      (
+                        <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
+                      )
+                    }
+                    {
+                      typeof book.imageLinks.thumbnail === "undefined" &&
+                      (
+                        <div className="book-cover" style={{ width: 128, height: 193 }}></div>
+                      )
+                    }
+
                     <div className="book-shelf-changer">
-                      <select>
-                        <option value="none" disabled>Move to...</option>
-                        <option value="currentlyReading">Currently Reading</option>
-                        <option value="wantToRead">Want to Read</option>
-                        <option value="read">Read</option>
-                        <option value="none">None</option>
+                      <select defaultValue={book.shelf} name={book.id} onChange={
+                        (event) => {
+                          props.updateBookStatusRequestFromShelfFunc(event, book);
+                        }
+                      }>
+                        <option value={props.noneRefString} disabled>Move to...</option>
+                        <option value={props.currentlyReadingBooksShelfNameRefString}>Currently Reading</option>
+                        <option value={props.wantsToReadShelfNameRefString}>Want to Read</option>
+                        <option value={props.hasReadBooksShelfRefString}>Read</option>
+                        <option value={props.noneRefString}>None</option>
                       </select>
                     </div>
                   </div>
@@ -31,6 +47,7 @@ const CurrentlyRead = (props) => (
                   <div className="book-authors">{book.authors.join(", ")}</div>
                 </div>
               </li>
+
             ))
         }
 

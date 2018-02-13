@@ -14,14 +14,29 @@ const WantRead = (props) => (
               <li key={book.id}>
                 <div className="book">
                   <div className="book-top">
-                    <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
+                    {
+                      typeof book.imageLinks.thumbnail !== "undefined" &&
+                      (
+                        <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
+                      )
+                    }
+                    {
+                      typeof book.imageLinks.thumbnail === "undefined" &&
+                      (
+                        <div className="book-cover" style={{ width: 128, height: 193 }}></div>
+                      )
+                    }
                     <div className="book-shelf-changer">
-                      <select>
-                        <option value="none" disabled>Move to...</option>
-                        <option value="currentlyReading">Currently Reading</option>
-                        <option value="wantToRead">Want to Read</option>
-                        <option value="read">Read</option>
-                        <option value="none">None</option>
+                      <select defaultValue={book.shelf} name={book.id} onChange={
+                        (event) => {
+                          props.updateBookStatusRequestFromShelfFunc(event, book);
+                        }
+                      }>
+                        <option value={props.noneRefString} disabled>Move to...</option>
+                        <option value={props.currentlyReadingBooksShelfNameRefString}>Currently Reading</option>
+                        <option value={props.wantsToReadShelfNameRefString}>Want to Read</option>
+                        <option value={props.hasReadBooksShelfRefString}>Read</option>
+                        <option value={props.noneRefString}>None</option>
                       </select>
                     </div>
                   </div>
