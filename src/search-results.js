@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { DebounceInput } from 'react-debounce-input';
 
 class SearchResults extends Component {
 
@@ -14,17 +15,11 @@ class SearchResults extends Component {
     if (this.state.bookSearchingNeedle) {
       this.props.searchBooksFunc(this.state.bookSearchingNeedle);
     }
-
-  }
-
-  updateBookStatusRequestFromShelf = (event) => {
-
-    this.props.updateBookStatusRequestFromShelfFunc(event.target.name, event.target.value);
   }
 
   render() {
 
-    const { booksUnderSearchResultsArr, wantsToReadShelfNameRefString, currentlyReadingBooksShelfNameRefString, hasReadBooksShelfRefString, noneRefString } = this.props;
+    const { booksUnderSearchResultsArr, wantsToReadShelfNameRefString, currentlyReadingBooksShelfNameRefString, hasReadBooksShelfRefString, noneRefString, updateBookShelfRequestFunc } = this.props;
 
     return (
 
@@ -44,10 +39,21 @@ class SearchResults extends Component {
             you don't find a specific author or title. Every search is limited by search terms.
           */
             }
-            <input type="text"
-              onChange={(event) => { this.setBookSearchingNeedle(event.target.value) }}
+            <DebounceInput minLength={2}
+              debounceTimeout={300}
+              onChange={
+                (event) => {
+
+                  this.setState({ bookSearchingNeedle: event.target.value });
+
+                  if (this.state.bookSearchingNeedle) {
+                    this.props.searchBooksFunc(this.state.bookSearchingNeedle);
+                  }
+                }
+              }
+              value={this.state.bookSearchingNeedle}
               placeholder="Search by title or author"
-              value={this.state.bookSearchingNeedle} />
+            />
 
           </div>
         </div>
@@ -63,19 +69,26 @@ class SearchResults extends Component {
                       <div className="book">
                         <div className="book-top">
                           {
-                            typeof book.imageLinks.thumbnail !== "undefined" &&
+                            typeof book.imageLinks !== "undefined" &&
                             (
                               <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
                             )
                           }
                           {
-                            typeof book.imageLinks.thumbnail === "undefined" &&
+                            typeof book.imageLinks === "undefined" &&
                             (
                               <div className="book-cover" style={{ width: 128, height: 193 }}></div>
+
                             )
                           }
                           <div className="book-shelf-changer">
-                            <select defaultValue={book.shelf} name={book.id} onChange={this.updateBookStatusRequestFromShelf}>
+                            <select defaultValue={book.shelf} name={book.id} onChange={
+                              (event) => {
+
+                                event.preventDefault();
+                                updateBookShelfRequestFunc(event, book);
+                              }
+                            }>
                               <option value={noneRefString} disabled>Move to...</option>
                               <option value={currentlyReadingBooksShelfNameRefString}>Currently Reading</option>
                               <option value={wantsToReadShelfNameRefString}>Want to Read</option>

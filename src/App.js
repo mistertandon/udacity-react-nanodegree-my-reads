@@ -3,7 +3,7 @@ import * as BooksAPI from './BooksAPI'
 import { Route, Link } from 'react-router-dom'
 import './App.css'
 import SearchResults from './search-results'
-import BookShelfType from '/book-shelf-type'
+import BookShelfType from './book-shelf-type'
 
 class BooksApp extends Component {
 
@@ -58,35 +58,16 @@ class BooksApp extends Component {
 
     BooksAPI.getAll().then(books => {
 
-      return this.updateSearchResults(books);
+      return this.updateSearchResultsOnInit(books);
 
-    }).then(() => {
+    }).then((updatedStateObject) => {
 
+      this.setState(updatedStateObject);
       console.log(`book has been moved to desired category.`);
     });
   }
 
-  searchBooks = (bookSearchingNeedle) => {
-
-    BooksAPI
-      .search(bookSearchingNeedle)
-      .then(searchResults => {
-
-        if (searchResults.length) {
-          searchResults.forEach((book, index) => {
-
-            if (typeof book.shelf === "undefined") {
-
-              book.shelf = "none";
-            }
-          });
-
-          this.setState({ booksUnderSearchResults: searchResults });
-        }
-      });
-  }
-
-  updateBookStatusRequestFromShelf = (event, book) => {
+  updateBookShelfRequest = (event, book) => {
 
     const shelfName = event.target.value;
 
@@ -95,16 +76,17 @@ class BooksApp extends Component {
 
         return BooksAPI.getAll();
       })
-      .then(books => {
+      .then(booksUnderShelves => {
 
-        return this.updateSearchResults(books);
-      }).then(() => {
+        return this.updateSearchResultsAfterShelfUpdation(booksUnderShelves, book, shelfName);
+      }).then(updatedStateObject => {
 
-        console.log(`book has been moved to desired category.`);
+        this.setState(updatedStateObject);
+        console.log(`book shelf has been updated to desired category.`);
       });
   }
 
-  updateSearchResults = (books) => {
+  updateSearchResultsOnInit = (books) => {
 
     let updateSearchResultsPromise = new Promise((resolve, reject) => {
 
@@ -122,12 +104,100 @@ class BooksApp extends Component {
         });
       });
 
-      this.setState({
+      resolve({
         booksUnderShelves: books,
         booksUnderSearchResults: booksUnderSearchResultsModified
       });
+    });
 
-      resolve();
+    return updateSearchResultsPromise;
+  }
+
+  updateSearchResultsAfterShelfUpdation = (booksUnderShelves, book, shelfName) => {
+
+    let updateSearchResultsPromise = new Promise((resolve, reject) => {
+
+      var booksUnderSearchResultsModified = [];
+      booksUnderSearchResultsModified = this.state.booksUnderSearchResults.map(bookUnderSearchResult => Object.assign({}, bookUnderSearchResult));
+
+      booksUnderSearchResultsModified.length && booksUnderSearchResultsModified.find((bookInfo, index) => {
+
+        if (bookInfo.id === book.id) {
+          booksUnderSearchResultsModified[index].shelf = shelfName;
+        }
+      });
+
+      resolve(
+        {
+          booksUnderShelves: booksUnderShelves,
+          booksUnderSearchResults: booksUnderSearchResultsModified
+        }
+      );
+    });
+
+    return updateSearchResultsPromise;
+  }
+
+  searchBooks = (bookSearchingNeedle) => {
+
+    BooksAPI
+      .search(bookSearchingNeedle)
+      .then(searchResults => {
+
+        return this.updateSearchResultsShelfAfterSearching(searchResults);
+      })
+      .then(searchResults => {
+
+        return this.updateSearchResultsAfterSearching(searchResults);
+      })
+      .then(booksUnderSearchResultsModified => {
+
+        this.setState({
+          booksUnderSearchResults: booksUnderSearchResultsModified
+        });
+      });
+  }
+
+  updateSearchResultsShelfAfterSearching = (searchResults) => {
+
+    let searchResultsPromise = new Promise(
+      (resolve, reject) => {
+
+        searchResults.length && searchResults.forEach((book, index) => {
+
+          if (typeof book.shelf === "undefined") {
+
+            book.shelf = this.noneRef;
+          }
+        });
+
+        resolve(searchResults);
+      }
+    );
+
+    return searchResultsPromise;
+  }
+
+  updateSearchResultsAfterSearching = (booksUnderSearchResults) => {
+
+    let updateSearchResultsPromise = new Promise((resolve, reject) => {
+
+      var booksUnderSearchResultsModified = [];
+      booksUnderSearchResultsModified = booksUnderSearchResults.map(bookUnderSearchResult => Object.assign({}, bookUnderSearchResult));
+
+      this.state.booksUnderShelves.length && this.state.booksUnderShelves.map(book => {
+
+        booksUnderSearchResultsModified.find((bookInfo, index) => {
+
+          if (bookInfo.id === book.id) {
+
+            booksUnderSearchResultsModified[index].shelf = book.shelf;
+            return true;
+          }
+        });
+      });
+
+      resolve(booksUnderSearchResultsModified);
     });
 
     return updateSearchResultsPromise;
@@ -147,7 +217,7 @@ class BooksApp extends Component {
             currentlyReadingBooksShelfNameRefString={this.currentlyReadingBooksShelfNameRef}
             hasReadBooksShelfRefString={this.hasReadBooksShelfRef}
             noneRefString={this.noneRef}
-            updateBookStatusRequestFromShelfFunc={this.updateBookStatusRequestFromShelf}
+            updateBookShelfRequestFunc={this.updateBookShelfRequest}
           />
         )} />
 
@@ -167,7 +237,7 @@ class BooksApp extends Component {
                   currentlyReadingBooksShelfNameRefString={this.currentlyReadingBooksShelfNameRef}
                   hasReadBooksShelfRefString={this.hasReadBooksShelfRef}
                   noneRefString={this.noneRef}
-                  updateBookStatusRequestFromShelfFunc={this.updateBookStatusRequestFromShelf}
+                  updateBookShelfRequestFunc={this.updateBookShelfRequest}
                 />
                 <BookShelfType booksUnderShelvesArr={this.state.booksUnderShelves}
                   shelfNameRef={this.wantsToReadShelfNameRef}
@@ -176,7 +246,7 @@ class BooksApp extends Component {
                   currentlyReadingBooksShelfNameRefString={this.currentlyReadingBooksShelfNameRef}
                   hasReadBooksShelfRefString={this.hasReadBooksShelfRef}
                   noneRefString={this.noneRef}
-                  updateBookStatusRequestFromShelfFunc={this.updateBookStatusRequestFromShelf}
+                  updateBookShelfRequestFunc={this.updateBookShelfRequest}
                 />
                 <BookShelfType booksUnderShelvesArr={this.state.booksUnderShelves}
                   shelfNameRef={this.hasReadBooksShelfRef}
@@ -185,7 +255,7 @@ class BooksApp extends Component {
                   currentlyReadingBooksShelfNameRefString={this.currentlyReadingBooksShelfNameRef}
                   hasReadBooksShelfRefString={this.hasReadBooksShelfRef}
                   noneRefString={this.noneRef}
-                  updateBookStatusRequestFromShelfFunc={this.updateBookStatusRequestFromShelf}
+                  updateBookShelfRequestFunc={this.updateBookShelfRequest}
                 />
               </div>
             </div>

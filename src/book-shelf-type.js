@@ -17,13 +17,13 @@ const BookShelfType = (props) => (
                 <div className="book">
                   <div className="book-top">
                     {
-                      typeof book.imageLinks.thumbnail !== "undefined" &&
+                      typeof book.imageLinks !== "undefined" &&
                       (
                         <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
                       )
                     }
                     {
-                      typeof book.imageLinks.thumbnail === "undefined" &&
+                      typeof book.imageLinks === "undefined" &&
                       (
                         <div className="book-cover" style={{ width: 128, height: 193 }}></div>
                       )
@@ -32,7 +32,9 @@ const BookShelfType = (props) => (
                     <div className="book-shelf-changer">
                       <select defaultValue={book.shelf} name={book.id} onChange={
                         (event) => {
-                          props.updateBookStatusRequestFromShelfFunc(event, book);
+
+                          event.preventDefault();
+                          props.updateBookShelfRequestFunc(event, book);
                         }
                       }>
                         <option value={props.noneRefString} disabled>Move to...</option>
